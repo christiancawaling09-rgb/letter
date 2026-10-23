@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Baby!</title>
+  
+  <!-- Adventure Time-styled Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Kalam:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --at-jake-yellow: #fbbb04;
+      --at-finn-blue: #0988cc;
+      --at-bmo-teal: #49bda6;
+      --at-marceline-red: #d92534;
+      --card-bg: #fffcf2;
+      --dark-outline: #2c2523;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      /* Background is now the looping video (see .bg-video below) */
+      background: #000;
+      font-family: 'Fredoka', cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ============================================================
+       LOOPING VIDEO BACKGROUND
+       ============================================================ */
+    .bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
+    .bg-video-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.25));
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Ambient drifting soft glow */
+    .sun-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 35% 65%, rgba(255, 215, 100, 0.25) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ============================================================
+       INTERACTIVE & DRAGGABLE STICKERS (Flowers, Teddy Bear & AT)
+       ============================================================ */
+    .stickers-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .sticker {
+      position: absolute;
+      pointer-events: auto;
+      cursor: grab;
+      filter: drop-shadow(0px 8px 14px rgba(0,0,0,0.35));
+      transition: transform 0.15s ease;
+      touch-action: none;
+    }
+    .sticker:active {
+      cursor: grabbing;
+      transform: scale(1.15) rotate(6deg) !important;
+    }
+    .sticker-inner {
+      background: #ffffff;
+      padding: 7px;
+      border-radius: 20px;
+      border: 4px solid #ffffff;
+      box-shadow: inset 0 0 0 2px var(--dark-outline), 0 5px 0 var(--dark-outline);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sticker img {
+      width: 75px;
+      height: 75px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .sticker-badge {
+      font-family: 'Fredoka', cursive;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 3px solid var(--dark-outline);
+      color: #fff;
+      box-shadow: 0 4px 0 var(--dark-outline);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Preset placements for flowers, bear, and Finn/Jake icons */
+    #sticker-bear   { top: 12%; left: 8%; transform: rotate(-10deg); }
+    #sticker-rose   { top: 10%; right: 9%; transform: rotate(14deg); }
+    #sticker-daisy  { bottom: 12%; left: 7%; transform: rotate(8deg); }
+    #sticker-flower { bottom: 14%; right: 8%; transform: rotate(-12deg); }
+    #sticker-sword  { top: 48%; left: 4%; transform: rotate(-18deg); }
+    #sticker-bmo    { top: 52%; right: 4%; transform: rotate(12deg); }
+    #sticker-quote  { bottom: 5%; left: 50%; transform: translateX(-50%) rotate(-2deg); }
+
+    /* ============================================================
+       THE CLOSED NOTE / ENVELOPE
+       ============================================================ */
+    .stage {
+      position: relative;
+      z-index: 10;
+      perspective: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+
+    .envelope-hint {
+      font-family: 'Fredoka', cursive;
+      font-size: 21px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 2px 2px 0 var(--dark-outline), -2px -2px 0 var(--dark-outline), 2px -2px 0 var(--dark-outline), -2px 2px 0 var(--dark-outline);
+      margin-bottom: 18px;
+      background: var(--at-jake-yellow);
+      border: 3.5px solid var(--dark-outline);
+      padding: 8px 22px;
+      border-radius: 30px;
+      box-shadow: 0 6px 0 var(--dark-outline);
+      animation: bounce 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .envelope-box {
+      width: 330px;
+      height: 225px;
+      background: #fdf3d0;
+      border: 4px solid var(--dark-outline);
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 16px 30px rgba(0,0,0,0.4), 0 7px 0 var(--dark-outline);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .envelope-box:hover {
+      transform: translateY(-8px) scale(1.03);
+    }
+    .envelope-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-style: solid;
+      border-width: 105px 161px 0 161px;
+      border-color: #eedca4 transparent transparent transparent;
+      z-index: 2;
+    }
+
+    .wax-seal {
+      width: 72px;
+      height: 72px;
+      background: var(--at-marceline-red);
+      border: 4px solid var(--dark-outline);
+      border-radius: 50%;
+      position: absolute;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+      box-shadow: 0 5px 0 var(--dark-outline);
+      transition: transform 0.2s ease;
+    }
+    .wax-seal span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: -2px;
+    }
+    .envelope-box:hover .wax-seal {
+      transform: scale(1.15) rotate(8deg);
+    }
+
+    .envelope-label {
+      position: absolute;
+      bottom: 18px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 22px;
+      font-weight: bold;
+      color: #3f2a1d;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px 18px;
+      border-radius: 8px;
+      border: 2px dashed #a48c6f;
+      transform: rotate(-2deg);
+    }
+
+    /* ============================================================
+       OPENED NOTE MODAL / POPUP
+       ============================================================ */
+    .note-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 30, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .note-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .note-modal {
+      width: 100%;
+      max-width: 960px;
+      max-height: 92vh;
+      background: var(--card-bg);
+      border: 5px solid var(--dark-outline);
+      border-radius: 28px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 8px 0 var(--dark-outline);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 38px 32px 32px 32px;
+      position: relative;
+      overflow-y: auto;
+      transform: scale(0.65) rotate(-3deg);
+      transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+      background-image: 
+        radial-gradient(#e4dfce 1.2px, transparent 1.2px);
+      background-size: 22px 22px;
+    }
+    .note-overlay.active .note-modal {
+      transform: scale(1) rotate(0deg);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: var(--at-marceline-red);
+      color: white;
+      border: 3.5px solid var(--dark-outline);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 0 var(--dark-outline);
+      transition: transform 0.15s;
+      z-index: 10;
+    }
+    .close-btn:hover {
+      transform: scale(1.12) rotate(90deg);
+    }
+
+    /* The Written Letter */
+    .letter-container {
+      background: #ffffff;
+      border: 3.5px solid var(--dark-outline);
+      border-radius: 18px;
+      padding: 26px 28px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .letter-header {
+      border-bottom: 3px dashed #dbcaa5;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .letter-header h1 {
+      font-size: 32px;
+      color: var(--at-marceline-red);
+      text-shadow: 1px 1px 0 var(--dark-outline);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .letter-header .subtitle {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 20px;
+      color: #6a5e4d;
+    }
+
+    .letter-body {
+      font-family: 'Kalam', cursive;
+      font-size: 21px;
+      line-height: 1.7;
+      color: #2b231d;
+      margin-bottom: 18px;
+      white-space: pre-line;
+    }
+
+    .letter-footer {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 23px;
+      font-weight: bold;
+      color: var(--at-finn-blue);
+      text-align: right;
+    }
+
+    /* ============================================================
+       MULTIPLE POLAROIDS SECTION (Scrapbook Layout)
+       ============================================================ */
+    .scrapbook-title {
+      font-family: 'Fredoka', cursive;
+      font-size: 22px;
+      color: var(--dark-outline);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .polaroids-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 24px;
+      padding: 10px 0 20px 0;
+    }
+
+    .polaroid {
+      background: #ffffff;
+      padding: 12px 12px 18px 12px;
+      border: 3.5px solid var(--dark-outline);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.18), 0 4px 0 var(--dark-outline);
+      position: relative;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .polaroid:nth-child(1) { transform: rotate(-3deg); }
+    .polaroid:nth-child(2) { transform: rotate(2deg); }
+    .polaroid:nth-child(3) { transform: rotate(-2deg); }
+
+    .polaroid:hover {
+      transform: scale(1.06) rotate(0deg) !important;
+      z-index: 5;
+    }
+
+    /* Tapes for Polaroids */
+    .polaroid-tape {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 75px;
+      height: 24px;
+      background: rgba(255, 205, 0, 0.88);
+      border: 2px dashed #b58d00;
+      clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
+      z-index: 4;
+    }
+    .polaroid:nth-child(2) .polaroid-tape {
+      background: rgba(255, 140, 180, 0.88);
+      border-color: #c94477;
+    }
+    .polaroid:nth-child(3) .polaroid-tape {
+      background: rgba(73, 189, 166, 0.88);
+      border-color: #1e7563;
+    }
+
+    .polaroid-img-container {
+      width: 100%;
+      height: 200px;
+      background: #eee8d5;
+      border: 2px solid var(--dark-outline);
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .polaroid-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .polaroid-caption {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 19px;
+      text-align: center;
+      margin-top: 12px;
+      color: #3b2d22;
+      font-weight: bold;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .note-modal {
+        padding: 24px 16px;
+      }
+      .letter-header h1 {
+        font-size: 26px;
+      }
+      .letter-body {
+        font-size: 18px;
+      }
+      .polaroids-grid {
+        grid-template-columns: 1fr;
+      }
+      .sticker img {
+        width: 60px;
+        height: 60px;
+      }
+      #sticker-sword, #sticker-quote {
+        display: none;
+      }
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 150;
+    }
+  
+    /* ============================================================
+       SPOTIFY-STYLE MINI PLAYER
+       ============================================================ */
+    .sp-player {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      width: 310px;
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: 'Inter', 'Circular Std', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+      color: #fff;
+      transition: opacity 0.25s ease, transform 0.3s ease;
+    }
+    .sp-player * { user-select: none; -webkit-tap-highlight-color: transparent; }
+    :where(.sp-player) button {
+      background: none; border: 0; color: inherit; font: inherit; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; padding: 0;
+    }
+    :where(.sp-player) svg { width: 100%; height: 100%; fill: currentColor; display: block; }
+
+    .sp-player.is-min { pointer-events: none; opacity: 0; transform: translateY(16px) scale(0.96); }
+
+    /* Playlist drawer */
+    .sp-queue {
+      background: rgba(18, 18, 18, 0.96);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+    .sp-player.show-queue .sp-queue { max-height: 340px; opacity: 1; }
+    .sp-queue-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 8px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.2px;
+    }
+    .sp-queue-head span { color: #b3b3b3; font-weight: 500; font-size: 12px; }
+    .sp-list { list-style: none; padding: 4px 8px 10px; max-height: 280px; overflow-y: auto; }
+    .sp-list::-webkit-scrollbar { width: 8px; }
+    .sp-list::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 8px; }
+    .sp-item {
+      display: grid; grid-template-columns: 22px 40px 1fr auto; gap: 10px; align-items: center;
+      padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background 0.15s;
+    }
+    .sp-item:hover { background: rgba(255,255,255,0.1); }
+    .sp-item.active { background: rgba(255,255,255,0.07); }
+    .sp-item .lead { display: flex; align-items: center; justify-content: center; }
+    .sp-item .num { font-size: 13px; color: #b3b3b3; text-align: center; font-variant-numeric: tabular-nums; }
+    .sp-item img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; background: #282828; }
+    .sp-item .info { min-width: 0; }
+    .sp-item .t { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-item .a { font-size: 12px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-item.active .t, .sp-item.active .num { color: #1ed760; }
+    .sp-item .d { font-size: 12px; color: #b3b3b3; font-variant-numeric: tabular-nums; }
+    .sp-eq { display: none; width: 14px; height: 14px; align-items: flex-end; gap: 2px; margin: 0 auto; }
+    .sp-eq i { flex: 1; background: #1ed760; height: 30%; border-radius: 1px; animation: sp-eq 0.9s ease-in-out infinite; animation-play-state: paused; }
+    .sp-eq i:nth-child(2) { animation-delay: -0.4s; }
+    .sp-eq i:nth-child(3) { animation-delay: -0.7s; }
+    @keyframes sp-eq { 0%,100% { height: 25%; } 50% { height: 100%; } }
+    .sp-item.active .num { display: none; }
+    .sp-item.active .sp-eq { display: flex; }
+    .sp-player.is-playing .sp-item.active .sp-eq i { animation-play-state: running; }
+
+    /* Main card */
+    .sp-card {
+      background: linear-gradient(180deg, #232323 0%, #121212 100%);
+      border-radius: 14px;
+      padding: 14px 16px 14px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .sp-card::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0.35;
+      background: var(--sp-art) center / cover; filter: blur(40px) saturate(1.4); transform: scale(1.4);
+      transition: background-image 0.4s;
+    }
+    .sp-card > * { position: relative; z-index: 1; }
+
+    .sp-top { display: flex; align-items: center; gap: 12px; }
+    .sp-cover {
+      width: 62px; height: 62px; border-radius: 6px; object-fit: cover; flex: none;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5); background: #282828;
+    }
+    .sp-meta { flex: 1; min-width: 0; }
+    .sp-title { font-size: 15px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-artist { font-size: 12.5px; color: #b3b3b3; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-tiny { display: flex; flex-direction: column; gap: 6px; align-self: flex-start; }
+    .sp-icon-btn { width: 28px; height: 28px; border-radius: 50%; color: #b3b3b3; transition: color .15s, background .15s, transform .15s; }
+    .sp-icon-btn svg { width: 18px; height: 18px; margin: auto; }
+    .sp-icon-btn:hover { color: #fff; transform: scale(1.08); }
+    .sp-icon-btn.on { color: #1ed760; }
+
+    /* Progress */
+    .sp-progress { display: flex; align-items: center; gap: 8px; margin: 14px 0 6px; }
+    .sp-time { font-size: 11px; color: #b3b3b3; min-width: 32px; font-variant-numeric: tabular-nums; }
+    .sp-time.r { text-align: right; }
+
+    .sp-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 12px; background: transparent; cursor: pointer; outline: none; margin: 0;
+      --pct: 0%; --fill: #fff;
+    }
+    .sp-range::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--fill) var(--pct), rgba(255,255,255,0.3) var(--pct)); }
+    .sp-range::-moz-range-track { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.3); }
+    .sp-range::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--fill); }
+    .sp-range::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; margin-top: -4px; box-shadow: 0 2px 4px rgba(0,0,0,.5); opacity: 0; transition: opacity .15s; }
+    .sp-range::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; opacity: 0; transition: opacity .15s; }
+    .sp-range:hover, .sp-range:focus-visible { --fill: #1ed760; }
+    .sp-range:hover::-webkit-slider-thumb { opacity: 1; }
+    .sp-range:hover::-moz-range-thumb { opacity: 1; }
+
+    /* Controls */
+    .sp-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 2px; }
+    .sp-ctl { width: 32px; height: 32px; color: #b3b3b3; transition: color .15s, transform .15s; position: relative; }
+    .sp-ctl svg { width: 22px; height: 22px; margin: auto; }
+    .sp-ctl:hover { color: #fff; transform: scale(1.1); }
+    .sp-ctl.on { color: #1ed760; }
+    .sp-ctl.on::after { content: ''; position: absolute; bottom: -1px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #1ed760; transform: translateX(-50%); }
+    .sp-play {
+      width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #000;
+      transition: transform .12s ease, background .12s;
+    }
+    .sp-play:hover { transform: scale(1.07); background: #f2f2f2; }
+    .sp-play:active { transform: scale(0.96); }
+    .sp-play svg { width: 22px; height: 22px; margin: auto; }
+    .sp-play .i-pause { display: none; }
+    .sp-player.is-playing .sp-play .i-play { display: none; }
+    .sp-player.is-playing .sp-play .i-pause { display: block; }
+    .sp-ctl.prev svg, .sp-ctl.next svg { width: 24px; height: 24px; }
+
+    /* Volume row */
+    .sp-bottom { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .sp-vol-btn { width: 24px; height: 24px; color: #b3b3b3; }
+    .sp-vol-btn:hover { color: #fff; }
+    .sp-vol-btn svg { width: 18px; height: 18px; margin: auto; }
+    .sp-vol-btn .i-mute { display: none; }
+    .sp-player.is-muted .sp-vol-btn .i-vol { display: none; }
+    .sp-player.is-muted .sp-vol-btn .i-mute { display: block; }
+    .sp-bottom .sp-range { flex: 1; }
+    .sp-queue-btn { width: 28px; height: 28px; color: #b3b3b3; }
+    .sp-queue-btn svg { width: 18px; height: 18px; margin: auto; }
+    .sp-queue-btn:hover { color: #fff; }
+    .sp-player.show-queue .sp-queue-btn { color: #1ed760; }
+
+    /* Minimized floating disc */
+    .sp-fab {
+      position: fixed; left: 20px; bottom: 20px; z-index: 121;
+      width: 58px; height: 58px; border-radius: 50%; padding: 0; border: 0; cursor: pointer;
+      background: #121212; box-shadow: 0 8px 22px rgba(0,0,0,0.6), 0 0 0 3px #1ed760;
+      opacity: 0; transform: scale(0.6); pointer-events: none;
+      transition: opacity .25s ease, transform .3s cubic-bezier(.2,.9,.3,1.3);
+    }
+    .sp-fab.show { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .sp-fab img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; animation: sp-spin 8s linear infinite; animation-play-state: paused; }
+    .sp-fab::after { content: ''; position: absolute; inset: 0; margin: auto; width: 12px; height: 12px; border-radius: 50%; background: #121212; box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
+    .sp-fab.playing img { animation-play-state: running; }
+    @keyframes sp-spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .sp-player { left: 10px; right: 10px; bottom: 10px; width: auto; }
+      .sp-fab { left: 12px; bottom: 12px; width: 52px; height: 52px; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ============================================================
+       LOOPING VIDEO BACKGROUND
+       (keep the .mp4 in the same folder as this HTML file)
+       ============================================================ -->
+  <video class="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="bg.mp4" type="video/mp4" />
+  </video>
+  <div class="bg-video-overlay"></div>
+
+  <!-- Confetti canvas (needed by the confetti script below) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ============================================================
+       THE CLOSED NOTE / ENVELOPE (Front & Center)
+       ============================================================ -->
+  <div class="stage">
+    <div class="envelope-hint">💌 Happy Birthday To My Baby!</div>
+
+    <div class="envelope-box" id="openNoteBtn" role="button" aria-label="Open Birthday Note">
+      <div class="wax-seal">
+        <span>❤️</span>
+        <span>OPEN</span>
+      </div>
+      <!-- Customize the recipient name here -->
+      <div class="envelope-label">To My Baby</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       THE OPENED NOTE (Letter + 3 Polaroid Photo Frames)
+       ============================================================ -->
+  <div class="note-overlay" id="noteOverlay">
+    <div class="note-modal">
+      <button class="close-btn" id="closeNoteBtn" title="Close">✕</button>
+
+      <!-- 1. YOUR WRITTEN LETTER -->
+      <div class="letter-container">
+        <div class="letter-header">
+          <h1>Happy Birthday Baby! 🎈🧸💐</h1>
+          <div class="subtitle"></div>
+        </div>
+
+        <!-- EDIT YOUR LETTER MESSAGE HERE -->
+        <div class="letter-body">
+          Happy Birthday Babycakes!
+
+          Mahal na mahal talaga kita sobra baby at hindi ako mapapagod kakamahal pa sayo. Pinapangako kona hinding hindi kita iiwan at sasaktan baby at Ih ope na tumagal pa tayo sobra.
+
+          I hope na itong simple na website na ginawa ko para sayo nag bigay nang kahit kunting saya sa mukha mo. Ano bayan 17 ka padin kahit kaarawan mo ngayon nag mumukha padin akong pedo.
+
+          Anyways, I wish maging memorable tong araw na to para sayo at gusto ko lang na lagi mong tatandaan na andito lang ako sa tuwing may problema ka.
+
+          ILOVEYOUSOSOMUCHH BABY HAPPY BIRTHDAY ULIT
+          AND MORE BLESSINGS TO COME!
+        </div>
+
+        <!-- EDIT SIGN OFF HERE -->
+        <div class="letter-footer">
+          Forever by your side,<br />
+          Christian
+        </div>
+      </div>
+
+      <!-- 2. MULTIPLE POLAROIDS SECTION -->
+      <div>
+        <div class="scrapbook-title">
+          <span>📷</span>Basta cute ka dito<span>🌸</span>
+        </div>
+
+        <div class="polaroids-grid">
+          
+          <!-- POLAROID 1 -->
+          <div class="polaroid">
+            <div class="polaroid-tape"></div>
+            <div class="polaroid-img-container">
+              <!-- Replace 'src' with your photo URL or local file like 'photo1.jpg' -->
+              <img 
+                src="c:\Codes\Letter\e75c97f8-e2ba-4354-a3f2-97b61e70cf8e.jpg" 
+                alt="baby" 
+              />
+            </div>
+            <!-- Caption 1 -->
+            <div class="polaroid-caption">Unang landian natin to e</div>
+          </div>
+
+          <!-- POLAROID 2 -->
+          <div class="polaroid">
+            <div class="polaroid-tape"></div>
+            <div class="polaroid-img-container">
+              <!-- Replace 'src' with your photo URL or local file like 'photo2.jpg' -->
+              <img 
+                src="c:\Codes\Letter\79c09760-2224-4d57-817b-e13590fa0243.jpg"
+                alt="baby" 
+              />
+            </div>
+            <!-- Caption 2 -->
+            <div class="polaroid-caption">Ang ganda mo talaga dito!</div>
+          </div>
+
+          <!-- POLAROID 3 -->
+          <div class="polaroid">
+            <div class="polaroid-tape"></div>
+            <div class="polaroid-img-container">
+              <!-- Replace 'src' with your photo URL or local file like 'photo3.jpg' -->
+              <img 
+                src="c:\Codes\Letter\cbeb143b-3e25-4eac-97f9-c247455a5aa7.jpg" 
+                alt="baby" 
+              />
+            </div>
+            <!-- Caption 3 -->
+            <div class="polaroid-caption">Sana naging tayo nalang agad nung sikat pa to HAHAHAHA</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SPOTIFY-STYLE MINI PLAYER
+       (songs live in the "music" folder, covers in "covers")
+       ============================================================ -->
+  <aside class="sp-player" id="spPlayer" aria-label="Music player">
+    <div class="sp-queue" id="spQueue">
+      <div class="sp-queue-head">Birthday Playlist <span id="spCount"></span></div>
+      <ul class="sp-list" id="spList"></ul>
+    </div>
+
+    <div class="sp-card">
+      <div class="sp-top">
+        <img class="sp-cover" id="spCover" alt="Album cover" />
+        <div class="sp-meta">
+          <div class="sp-title" id="spTitle">—</div>
+          <div class="sp-artist" id="spArtist">—</div>
+        </div>
+        <div class="sp-tiny">
+          <button class="sp-icon-btn" id="spMin" title="Minimize" aria-label="Minimize player">
+            <svg viewBox="0 0 16 16"><path d="M2.5 6.5 8 12l5.5-5.5-1-1L8 10 3.5 5.5z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sp-progress">
+        <span class="sp-time" id="spCur">0:00</span>
+        <input class="sp-range" id="spSeek" type="range" min="0" max="1000" value="0" aria-label="Seek" />
+        <span class="sp-time r" id="spDur">0:00</span>
+      </div>
+
+      <div class="sp-controls">
+        <button class="sp-ctl" id="spShuffle" title="Shuffle" aria-label="Shuffle">
+          <svg viewBox="0 0 16 16"><path d="M13.151.922a.75.75 0 1 0-1.06 1.06L13.109 3H11.16a3.75 3.75 0 0 0-2.873 1.34l-6.173 7.356A2.25 2.25 0 0 1 .39 12.5H0V14h.391a3.75 3.75 0 0 0 2.873-1.34l6.173-7.356a2.25 2.25 0 0 1 1.724-.804h1.947l-1.017 1.018a.75.75 0 0 0 1.06 1.06L15.98 3.75zM.391 3.5H0V2h.391c1.109 0 2.16.49 2.873 1.34L4.89 5.277l-.979 1.167-1.796-2.14A2.25 2.25 0 0 0 .39 3.5z"/><path d="m7.5 10.723.98-1.167.957 1.14a2.25 2.25 0 0 0 1.724.804h1.947l-1.017-1.018a.75.75 0 1 1 1.06-1.06l2.829 2.828-2.829 2.828a.75.75 0 1 1-1.06-1.06L13.109 13H11.16a3.75 3.75 0 0 1-2.873-1.34z"/></svg>
+        </button>
+        <button class="sp-ctl prev" id="spPrev" title="Previous" aria-label="Previous">
+          <svg viewBox="0 0 16 16"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7z"/></svg>
+        </button>
+        <button class="sp-play" id="spPlay" title="Play / Pause" aria-label="Play or pause">
+          <svg class="i-play" viewBox="0 0 16 16"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288z"/></svg>
+          <svg class="i-pause" viewBox="0 0 16 16"><path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7z"/></svg>
+        </button>
+        <button class="sp-ctl next" id="spNext" title="Next" aria-label="Next">
+          <svg viewBox="0 0 16 16"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7z"/></svg>
+        </button>
+        <button class="sp-ctl" id="spRepeat" title="Repeat" aria-label="Repeat">
+          <svg id="spRepeatIcon" viewBox="0 0 16 16"><path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.81 12h2.44a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75z"/></svg>
+        </button>
+      </div>
+
+      <div class="sp-bottom">
+        <button class="sp-vol-btn" id="spMute" title="Mute" aria-label="Mute">
+          <svg class="i-vol" viewBox="0 0 16 16"><path d="M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4a3.64 3.64 0 0 1-1.33-4.967 3.64 3.64 0 0 1 1.33-1.332l6.925-4a.75.75 0 0 1 .75 0zm-6.924 5.3a2.14 2.14 0 0 0 0 3.7l5.8 3.35V2.8zm8.683 4.29V5.56a2.75 2.75 0 0 1 0 4.88z"/><path d="M11.5 13.614a5.752 5.752 0 0 0 0-11.228v1.55a4.252 4.252 0 0 1 0 8.127z"/></svg>
+          <svg class="i-mute" viewBox="0 0 16 16"><path d="M13.86 5.47a.75.75 0 0 0-1.061 0l-1.47 1.47-1.47-1.47A.75.75 0 0 0 8.8 6.53L10.269 8l-1.47 1.47a.75.75 0 1 0 1.06 1.06l1.47-1.47 1.47 1.47a.75.75 0 0 0 1.06-1.06L12.39 8l1.47-1.47a.75.75 0 0 0 0-1.06z"/><path d="M10.116 1.5A.75.75 0 0 0 8.991.85l-6.925 4a3.64 3.64 0 0 0-1.33 4.973 3.6 3.6 0 0 0 1.33 1.327l6.925 4a.75.75 0 0 0 1.125-.65zm-1.5 10.85-5.8-3.35a2.14 2.14 0 0 1 0-3.7l5.8-3.35z"/></svg>
+        </button>
+        <input class="sp-range" id="spVol" type="range" min="0" max="100" value="80" aria-label="Volume" />
+        <button class="sp-queue-btn" id="spQueueBtn" title="Playlist" aria-label="Show playlist">
+          <svg viewBox="0 0 16 16"><path d="M15 15H1v-1.5h14zm0-4.5H1V9h14zm-14-7A2.5 2.5 0 0 1 3.5 1h9a2.5 2.5 0 0 1 0 5h-9A2.5 2.5 0 0 1 1 3.5zm2.5-1a1 1 0 0 0 0 2h9a1 1 0 1 0 0-2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <button class="sp-fab" id="spFab" title="Open player" aria-label="Open music player">
+    <img id="spFabImg" alt="" />
+  </button>
+
+  <!-- ============================================================
+       SCRIPTS: Open/Close, Confetti & Dragging System
+       ============================================================ -->
+  <script>
+    // Open & Close Note Logic
+    const openNoteBtn = document.getElementById('openNoteBtn');
+    const closeNoteBtn = document.getElementById('closeNoteBtn');
+    const noteOverlay = document.getElementById('noteOverlay');
+
+    openNoteBtn.addEventListener('click', () => {
+      noteOverlay.classList.add('active');
+      launchConfetti();
+    });
+
+    closeNoteBtn.addEventListener('click', () => {
+      noteOverlay.classList.remove('active');
+    });
+
+    noteOverlay.addEventListener('click', (e) => {
+      if (e.target === noteOverlay) {
+        noteOverlay.classList.remove('active');
+      }
+    });
+
+    // ============================================================
+    // DRAGGABLE STICKERS SYSTEM (Mouse + Touch)
+    // ============================================================
+    const stickers = document.querySelectorAll('.sticker');
+
+    stickers.forEach(sticker => {
+      let isDragging = false;
+      let startX, startY;
+      let initialLeft, initialTop;
+
+      const onStart = (clientX, clientY) => {
+        isDragging = true;
+        const rect = sticker.getBoundingClientRect();
+        startX = clientX;
+        startY = clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        sticker.style.zIndex = '40';
+      };
+
+      const onMove = (clientX, clientY) => {
+        if (!isDragging) return;
+        const deltaX = clientX - startX;
+        const deltaY = clientY - startY;
+        sticker.style.left = `${initialLeft + deltaX}px`;
+        sticker.style.top = `${initialTop + deltaY}px`;
+        sticker.style.bottom = 'auto';
+        sticker.style.right = 'auto';
+      };
+
+      const onEnd = () => {
+        if (isDragging) {
+          isDragging = false;
+          sticker.style.zIndex = '21';
+        }
+      };
+
+      sticker.addEventListener('mousedown', (e) => {
+        onStart(e.clientX, e.clientY);
+        const mouseMove = (ev) => onMove(ev.clientX, ev.clientY);
+        const mouseUp = () => {
+          onEnd();
+          window.removeEventListener('mousemove', mouseMove);
+          window.removeEventListener('mouseup', mouseUp);
+        };
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
+      });
+
+      sticker.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        onStart(touch.clientX, touch.clientY);
+      }, { passive: true });
+
+      sticker.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        onMove(touch.clientX, touch.clientY);
+      }, { passive: true });
+
+      sticker.addEventListener('touchend', onEnd);
+    });
+
+    // ============================================================
+    // CELEBRATION CONFETTI
+    // ============================================================
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti() {
+      particles = [];
+      const colors = ['#fbbb04', '#ff85a2', '#49bda6', '#d92534', '#ffffff', '#ffdf79'];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 16,
+          gravity: 0.35,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          opacity: 1
+        });
+      }
+      renderConfetti();
+    }
+
+    function renderConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.rotationSpeed;
+        p.opacity -= 0.008;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+
+        if (p.opacity <= 0) particles.splice(index, 1);
+      });
+
+      if (particles.length > 0) {
+        requestAnimationFrame(renderConfetti);
+      }
+    }
+  </script>
+
+  <!-- ============================================================
+       MINI PLAYER SCRIPT
+       ============================================================ -->
+  <script>
+  (() => {
+    // ---- YOUR PLAYLIST (add/remove songs here) ----
+    const tracks = [
+      { title: 'Telephones',      artist: 'VACATIONS',        src: 'music/Vacations - Telephones.mp3',  cover: 'cover/2de65eac-f405-45b5-a16f-bb36d24d0a38.jpg',  dur: '3:34' },
+      { title: 'nuts (feat. rainy bear)', artist: 'Lil Peep', src: 'music/Lil Peep - nuts (feat. rainy bear) (Official Audio).mp3',         cover: 'cover/3d9826f9-ca67-4f59-b6b7-bd718f84e38e.jpg',         dur: '1:25' },
+      { title: 'Anghell',         artist: 'HELLMERRY',        src: 'music/HELLMERRY - Anghell (Official Music Video).mp3',     cover: 'cover/68ad81a6-2bac-47a6-943f-7a1a16b1fbcf.jpg',     dur: '4:30' },
+      { title: 'PWEDE BANG?',     artist: 'Hev Abi',          src: 'music/Hev Abi - PWEDE BANG_.mp3',    cover: 'cover/e23cbfae-833c-4728-b3a5-841b1b4ff5f7.jpg',    dur: '2:23' },
+      { title: 'Dominga (feat. Nateman)', artist: 'La Mave',  src: 'music/La Mave - Dominga Ft. Nateman Official Audio.mp3',       cover: 'cover/ecb855fd-286d-420e-93ff-e92bc4558dca.jpg',       dur: '3:47' }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const player = $('spPlayer'), fab = $('spFab');
+    const audio = new Audio();
+    audio.preload = 'metadata';
+    audio.volume = 0.8;
+
+    let idx = 0, shuffle = false, repeat = 0; // repeat: 0 off, 1 all, 2 one
+    let history = [], seeking = false;
+
+    const fmt = s => {
+      if (!isFinite(s)) return '0:00';
+      const m = Math.floor(s / 60), r = Math.floor(s % 60);
+      return m + ':' + String(r).padStart(2, '0');
+    };
+    const setPct = (el, pct) => el.style.setProperty('--pct', pct + '%');
+
+    // ---- Build playlist rows ----
+    const list = $('spList');
+    $('spCount').textContent = tracks.length + ' songs';
+    tracks.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.className = 'sp-item';
+      li.innerHTML =
+        '<div class="lead"><div class="num">' + (i + 1) + '</div><div class="sp-eq"><i></i><i></i><i></i></div></div>' +
+        '<img src="' + t.cover + '" alt="" />' +
+        '<div class="info"><div class="t"></div><div class="a"></div></div>' +
+        '<div class="d">' + t.dur + '</div>';
+      li.querySelector('.t').textContent = t.title;
+      li.querySelector('.a').textContent = t.artist;
+      li.addEventListener('click', () => { load(i); play(); });
+      list.appendChild(li);
+    });
+    function load(i, pushHistory = true) {
+      if (pushHistory && i !== idx) history.push(idx);
+      idx = i;
+      const t = tracks[idx];
+      audio.src = t.src;
+      $('spTitle').textContent = t.title;
+      $('spArtist').textContent = t.artist;
+      $('spCover').src = t.cover;
+      $('spFabImg').src = t.cover;
+      $('spDur').textContent = t.dur;
+      $('spCur').textContent = '0:00';
+      $('spSeek').value = 0; setPct($('spSeek'), 0);
+      player.querySelector('.sp-card').style.setProperty('--sp-art', 'url("' + t.cover + '")');
+      list.querySelectorAll('.sp-item').forEach((el, k) => el.classList.toggle('active', k === idx));
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: t.title, artist: t.artist, album: 'Birthday Playlist',
+          artwork: [{ src: t.cover, sizes: '400x400', type: 'image/jpeg' }]
+        });
+      }
+    }
+
+    function play() { audio.play().catch(() => {}); }
+    function pause() { audio.pause(); }
+    function toggle() { audio.paused ? play() : pause(); }
+
+    function nextIndex() {
+      if (shuffle && tracks.length > 1) {
+        let n; do { n = Math.floor(Math.random() * tracks.length); } while (n === idx);
+        return n;
+      }
+      return (idx + 1) % tracks.length;
+    }
+    function next() { load(nextIndex()); play(); }
+    function prev() {
+      if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+      if (history.length) { load(history.pop(), false); }
+      else { load((idx - 1 + tracks.length) % tracks.length, false); }
+      play();
+    }
+
+    // ---- Audio events ----
+    audio.addEventListener('play',  () => { player.classList.add('is-playing'); fab.classList.add('playing'); });
+    audio.addEventListener('pause', () => { player.classList.remove('is-playing'); fab.classList.remove('playing'); });
+    audio.addEventListener('loadedmetadata', () => { $('spDur').textContent = fmt(audio.duration); });
+    audio.addEventListener('timeupdate', () => {
+      if (seeking || !audio.duration) return;
+      const p = (audio.currentTime / audio.duration) * 1000;
+      $('spSeek').value = p; setPct($('spSeek'), p / 10);
+      $('spCur').textContent = fmt(audio.currentTime);
+    });
+    audio.addEventListener('ended', () => {
+      if (repeat === 2) { audio.currentTime = 0; play(); return; }
+      const last = idx === tracks.length - 1;
+      if (repeat === 0 && last && !shuffle) { load(0, false); pause(); return; }
+      next();
+    });
+
+    // ---- Controls ----
+    $('spPlay').addEventListener('click', toggle);
+    $('spNext').addEventListener('click', next);
+    $('spPrev').addEventListener('click', prev);
+
+    $('spShuffle').addEventListener('click', e => {
+      shuffle = !shuffle;
+      e.currentTarget.classList.toggle('on', shuffle);
+    });
+
+    const repeatBtn = $('spRepeat');
+    const repeatPaths = {
+      all: '<path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.81 12h2.44a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75z"/>',
+      one: '<path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h.75v1.5h-.75A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75zM12.25 2.5a2.25 2.25 0 0 1 2.25 2.25v5A2.25 2.25 0 0 1 12.25 12H9.81l1.018-1.018a.75.75 0 0 0-1.06-1.06L6.94 12.75l2.828 2.828a.75.75 0 1 0 1.06-1.06L9.811 13.5h2.439A3.75 3.75 0 0 0 16 9.75v-5A3.75 3.75 0 0 0 12.25 1H11.5v1.5z"/><path d="M9.12 8V1H7.787c-.128.72-.76 1.293-1.787 1.313V3.36h1.57V8z"/>'
+    };
+    repeatBtn.addEventListener('click', () => {
+      repeat = (repeat + 1) % 3;
+      repeatBtn.classList.toggle('on', repeat > 0);
+      $('spRepeatIcon').innerHTML = repeat === 2 ? repeatPaths.one : repeatPaths.all;
+      repeatBtn.title = ['Repeat', 'Repeat all', 'Repeat one'][repeat];
+    });
+
+    // Seek bar
+    const seek = $('spSeek');
+    seek.addEventListener('input', () => {
+      seeking = true;
+      setPct(seek, seek.value / 10);
+      if (audio.duration) $('spCur').textContent = fmt((seek.value / 1000) * audio.duration);
+    });
+    seek.addEventListener('change', () => {
+      if (audio.duration) audio.currentTime = (seek.value / 1000) * audio.duration;
+      seeking = false;
+    });
+
+    // Volume
+    const vol = $('spVol');
+    setPct(vol, 80);
+    vol.addEventListener('input', () => {
+      audio.volume = vol.value / 100;
+      audio.muted = audio.volume === 0;
+      player.classList.toggle('is-muted', audio.muted);
+      setPct(vol, vol.value);
+    });
+    let lastVol = 80;
+    $('spMute').addEventListener('click', () => {
+      if (!audio.muted && audio.volume > 0) {
+        lastVol = vol.value; audio.muted = true; vol.value = 0; setPct(vol, 0);
+      } else {
+        audio.muted = false; vol.value = lastVol || 80; audio.volume = vol.value / 100; setPct(vol, vol.value);
+      }
+      player.classList.toggle('is-muted', audio.muted);
+    });
+
+    // Playlist drawer + minimize
+    $('spQueueBtn').addEventListener('click', () => player.classList.toggle('show-queue'));
+    $('spMin').addEventListener('click', () => {
+      player.classList.add('is-min'); player.classList.remove('show-queue'); fab.classList.add('show');
+    });
+    fab.addEventListener('click', () => {
+      player.classList.remove('is-min'); fab.classList.remove('show');
+    });
+
+    // Lock-screen / keyboard media keys
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', play);
+      navigator.mediaSession.setActionHandler('pause', pause);
+      navigator.mediaSession.setActionHandler('previoustrack', prev);
+      navigator.mediaSession.setActionHandler('nexttrack', next);
+    }
+
+    load(0, false);
+  })();
+  </script>
+</body>
+</html>
